@@ -1,0 +1,27 @@
+{
+  "visual": {
+    "name": "playAxis",
+    "displayName": "Play Axis",
+    "guid": "PBI_CV_16948668_E17D_454B_8664_2F2C470EA8C1",
+    "visualClassName": "Visual",
+    "version": "1.0.0",
+    "description": "",
+    "supportUrl": "",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "1.3.0",
+  "author": {
+    "name": "",
+    "email": ""
+  },
+  "assets": {
+    "icon": "assets/icon.png",
+    "play": "assets/play.svg",
+    "pause": "assets/pause.svg",
+    "stop": "assets/stop.svg"
+  },
+  "externalJS": [],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": "dependencies.json"
+}

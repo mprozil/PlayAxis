@@ -1,0 +1,84 @@
+{
+    "dataRoles": [
+        {
+            "displayName": "Category Data",
+            "name": "category",
+            "kind": "Grouping"
+        }
+    ],
+    "dataViewMappings": [
+        {
+            "conditions": [
+                {
+                    "category": {
+                        "max": 1
+                    }
+                }
+            ],
+             "categorical": {
+                "categories": {
+                    "for": {
+                        "in": "category"
+                    }
+                }
+            }
+        }
+    ],
+    "objects": {
+        "transitionSettings": {
+            "displayName": "Time interval",
+            "properties": {
+                "timeInterval": {
+                    "displayName": "Time(ms)",
+                    "type": {
+                        "integer": true
+                    }
+                }
+            }
+        },
+        "colorSelector": {
+            "displayName": "Colors",
+            "properties": {
+                "colorPicked": {
+                    "displayName": "Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "captionSettings": {
+            "displayName": "Enable Caption",
+            "properties": {
+                "show": {
+                    "displayName": "Show",
+                    "type": { 
+                        "bool": true 
+                     }
+                },
+                "captionColor": {
+                    "displayName": "Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fontSize": {
+                   "displayName": "Text size",
+                   "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
