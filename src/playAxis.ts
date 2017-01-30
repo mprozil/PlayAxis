@@ -216,10 +216,11 @@ module powerbi.extensibility.visual {
          }
          
         public update(options: VisualUpdateOptions) {
+            this.stopAnimation();
             let viewModel = this.viewModel = visualTransform(options, this.host);
             this.visualSettings = viewModel.settings;
-            this.visualDataPoints = viewModel.dataPoints;           
-            
+            this.visualDataPoints = viewModel.dataPoints;        
+
             //Change colors
             let colorPicked = viewModel.settings.colorSelector.colorPicked.solid.color;
             let captionColor = viewModel.settings.captionSettings.captionColor.solid.color;
@@ -254,7 +255,7 @@ module powerbi.extensibility.visual {
                 let timer = setTimeout(() => {
                     this.selectionManager.select(this.viewModel.dataPoints[i].selectionId);
                     this.lastSelected = i;
-                    this.updateCaption(this.viewModel.dataPoints[i].category);
+                    this.updateCaption(this.viewModel.dataPoints[i].category);                   
                 }, (i - this.lastSelected) * timeInterval); 
                 this.timers.push(timer);
             }
