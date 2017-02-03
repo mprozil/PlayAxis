@@ -54,17 +54,18 @@ module powerbi.extensibility.visual {
      *
      * @interface
      * @property {{timeInterval:number}} transitionSettings - Object property that allows setting the time between transitions.
-     * @property {{colorPicked:Fill}} colorSelector - Object property that allows setting the control buttons color.
+     * @property {{pickedColor:Fill}} colorSelector - Object property that allows setting the control buttons color.
      * @property {{show:boolean}} captionSettings - Object property that allows axis to be enabled.
      * @property {{captionColor:Fill}} captionSettings - Object property that allows setting the caption buttons.
      * @property {{fontSize:number}} captionSettings - Object property that allows setting the caption font size.
      */
     interface VisualSettings {        
         transitionSettings: {
+            loop: boolean;
             timeInterval: number;
         };
         colorSelector: {
-            colorPicked: Fill;
+            pickedColor: Fill;
         };
         captionSettings: {
             show: boolean;
@@ -87,10 +88,11 @@ module powerbi.extensibility.visual {
 
         let defaultSettings: VisualSettings = {
             transitionSettings: {
+                loop: false,
                 timeInterval: 1000,
             },
             colorSelector: {
-                colorPicked: { solid: { color: "#000000" } },
+                pickedColor: { solid: { color: "#000000" } },
             },
             captionSettings: {
                 show: true,
@@ -121,10 +123,11 @@ module powerbi.extensibility.visual {
 
         let visualSettings: VisualSettings = {
             transitionSettings: {
+                loop: getValue<boolean>(objects, 'transitionSettings', 'loop', defaultSettings.transitionSettings.loop),
                 timeInterval: getValue<number>(objects, 'transitionSettings', 'timeInterval', defaultSettings.transitionSettings.timeInterval),
             },
             colorSelector: {
-                colorPicked: getValue<Fill>(objects, 'colorSelector', 'colorPicked', defaultSettings.colorSelector.colorPicked),
+                pickedColor: getValue<Fill>(objects, 'colorSelector', 'pickedColor', defaultSettings.colorSelector.pickedColor),
             },
             captionSettings: {
                 show: getValue<boolean>(objects, 'captionSettings', 'show', defaultSettings.captionSettings.show),
@@ -216,15 +219,20 @@ module powerbi.extensibility.visual {
          }
          
         public update(options: VisualUpdateOptions) {
+            if (!options ||
+                !options.dataViews ||
+                !options.dataViews[0]) {
+                return;
+            }
             this.stopAnimation();
             let viewModel = this.viewModel = visualTransform(options, this.host);
             this.visualSettings = viewModel.settings;
             this.visualDataPoints = viewModel.dataPoints;        
 
             //Change colors
-            let colorPicked = viewModel.settings.colorSelector.colorPicked.solid.color;
+            let pickedColor = viewModel.settings.colorSelector.pickedColor.solid.color;
             let captionColor = viewModel.settings.captionSettings.captionColor.solid.color;
-            this.svg.selectAll(".controls").attr("fill", colorPicked);
+            this.svg.selectAll(".controls").attr("fill", viewModel.settings.colorSelector.pickedColor.solid.color);
             this.svg.select("#label").attr("fill", captionColor);
 
             //Change caption font size
@@ -244,7 +252,7 @@ module powerbi.extensibility.visual {
 
         public playAnimation() {              
             if (this.status == Status.Play) return;
-
+   
             this.svg.selectAll("#play, #next, #previous").attr("opacity", "0.3");
             this.svg.selectAll("#stop, #pause").attr("opacity", "1");
 
@@ -255,10 +263,22 @@ module powerbi.extensibility.visual {
                 let timer = setTimeout(() => {
                     this.selectionManager.select(this.viewModel.dataPoints[i].selectionId);
                     this.lastSelected = i;
-                    this.updateCaption(this.viewModel.dataPoints[i].category);                   
+                    this.updateCaption(this.viewModel.dataPoints[i].category); 
                 }, (i - this.lastSelected) * timeInterval); 
                 this.timers.push(timer);
             }
+
+            //replay or stop after one cicle
+            let stopAnimationTimer = setTimeout(() => {
+                if(this.visualSettings.transitionSettings.loop) {
+                    this.status = Status.Stop;
+                    this.lastSelected = 0;
+                    this.playAnimation();
+                } else {
+                    this.stopAnimation();
+                }
+            }, (this.viewModel.dataPoints.length - this.lastSelected) * timeInterval); 
+            this.timers.push(stopAnimationTimer);
             this.status = Status.Play;
         }                
 
@@ -319,6 +339,7 @@ module powerbi.extensibility.visual {
                     objectEnumeration.push({
                         objectName: objectName,
                         properties: {
+                            loop: this.visualSettings.transitionSettings.loop,
                             timeInterval: this.visualSettings.transitionSettings.timeInterval
                         },
                         validValues: {
@@ -336,9 +357,9 @@ module powerbi.extensibility.visual {
                     objectEnumeration.push({
                         objectName: objectName,
                         properties: {
-                            colorPicked: {
+                            pickedColor: {
                                 solid: {
-                                    color: this.visualSettings.colorSelector.colorPicked.solid.color
+                                    color: this.visualSettings.colorSelector.pickedColor.solid.color
                                 }
                             }
                         },

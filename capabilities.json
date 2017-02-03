@@ -26,8 +26,14 @@
     ],
     "objects": {
         "transitionSettings": {
-            "displayName": "Time interval",
+            "displayName": "Animation Settings",
             "properties": {
+                "loop": {
+                    "displayName": "Loop",
+                    "type": { 
+                        "bool": true 
+                     }
+                },
                 "timeInterval": {
                     "displayName": "Time(ms)",
                     "type": {
@@ -39,7 +45,7 @@
         "colorSelector": {
             "displayName": "Colors",
             "properties": {
-                "colorPicked": {
+                "pickedColor": {
                     "displayName": "Color",
                     "type": {
                         "fill": {
