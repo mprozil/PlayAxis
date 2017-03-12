@@ -83,6 +83,21 @@
                             "fontSize": true
                         }
                     }
+                },
+                "align": {
+                   "displayName": "Align",
+                   "type": {
+                         "enumeration": [
+                            {
+                                "displayName": "Right",
+                                "value": "right"
+                            },
+                            {
+                                "displayName": "Left",
+                                "value": "left"
+                            }
+                         ]
+                     }
                 }
             }
         }

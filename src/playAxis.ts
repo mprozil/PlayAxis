@@ -71,6 +71,7 @@ module powerbi.extensibility.visual {
             show: boolean;
             captionColor: Fill;
             fontSize: number;
+            align: string;
         };
     }
 
@@ -98,6 +99,7 @@ module powerbi.extensibility.visual {
                 show: true,
                 captionColor: { solid: { color: "#000000" } },
                 fontSize: 16,
+                align: "left",
             }
         };
 
@@ -133,6 +135,7 @@ module powerbi.extensibility.visual {
                 show: getValue<boolean>(objects, 'captionSettings', 'show', defaultSettings.captionSettings.show),
                 captionColor: getValue<Fill>(objects, 'captionSettings', 'captionColor', defaultSettings.captionSettings.captionColor),
                 fontSize: getValue<number>(objects, "captionSettings", "fontSize", defaultSettings.captionSettings.fontSize),
+                align: getValue<string>(objects, "captionSettings", "align", defaultSettings.captionSettings.align),
             }
         }
 
@@ -157,6 +160,8 @@ module powerbi.extensibility.visual {
         private host: IVisualHost;
         private selectionManager: ISelectionManager;
         private svg: d3.Selection<SVGElement>;
+        private controlsSVG: d3.Selection<SVGElement>;
+        private captionSVG: d3.Selection<SVGElement>;
         private visualDataPoints: CategoryDataPoint[];
         private visualSettings: VisualSettings;
         private status: Status;
@@ -184,20 +189,24 @@ module powerbi.extensibility.visual {
                  .attr("width","100%")
                  .attr("height","100%");
 
+            this.controlsSVG = this.svg.append('svg');
             for (let i = 0; i < buttonNames.length; ++i) {
-                let container = this.svg.append('g')
-                 .attr("transform","translate("+30*i+",0)")
+                let container = this.controlsSVG.append('g')
                  .attr('class', "controls")
-                 .attr('id', buttonNames[i]);           
+                 .attr('transform','translate(' + 30*i + ')')
+                 .attr('id', buttonNames[i]); 
                 container.append("path")
                 .attr("d", buttonPath[i]);
              }
             
-            //Append caption text
-            this.svg.append('text')
-                .attr('dy','0.35em')
-                .attr('id','label')
-                .attr('transform', 'translate(150,12)');
+            //Append caption text           
+            this.captionSVG = this.svg.append('svg');
+            let captionBox = this.captionSVG.append('g');
+            captionBox.append('text')
+                .attr('dominant-baseline','middle')
+                .attr("y","14")
+                .attr('id','label');
+                //.attr('text-anchor', 'start');
 
             //Events on click
             this.svg.select("#play").on("click", () => {
@@ -239,14 +248,31 @@ module powerbi.extensibility.visual {
             let fontSize = viewModel.settings.captionSettings.fontSize;
             this.svg.select("#label").attr("font-size", fontSize);
 
+            let myViewBox = options.viewport;
+            
             //Change title            
             if (this.visualSettings.captionSettings.show) {
                 let title = options.dataViews[0].categorical.categories[0].source.displayName;           
                 this.svg.select("#label").text(title);
-                this.svg.attr("viewBox","0 0 260 24");
+                let textWidth = parseInt(this.svg.select("#label").text(title).style("width"));
+                let viewBoxWidth = 155 + textWidth;
+                this.controlsSVG
+                .attr("viewBox","0 0 " + viewBoxWidth + " 24")
+                .attr('preserveAspectRatio','xMinYMin');
+                
+                if (this.visualSettings.captionSettings.align == "right") {
+                    this.captionSVG.select("text").attr('text-anchor', 'end').attr("x","100%");
+                    this.captionSVG.attr("viewBox","0 0 145 24").attr('preserveAspectRatio','xMaxYMin');
+                } else {
+                    this.captionSVG.select("text").attr('text-anchor', 'start').attr("x","4%");
+                    this.captionSVG.attr("viewBox","-140 0 " + viewBoxWidth + " 24").attr('preserveAspectRatio','xMinYMin');
+                }
+                
             } else {
                 this.svg.select("#label").text("");
-                this.svg.attr("viewBox","0 0 145 24");
+                this.controlsSVG
+                .attr("viewBox","0 0 145 24")
+                .attr('preserveAspectRatio','xMinYMin'); 
             }
         }
 
@@ -376,7 +402,8 @@ module powerbi.extensibility.visual {
                                     color: this.visualSettings.captionSettings.captionColor.solid.color
                                 }
                             },
-                            fontSize: this.visualSettings.captionSettings.fontSize
+                            fontSize: this.visualSettings.captionSettings.fontSize,
+                            align: this.visualSettings.captionSettings.align,
                         },
                         selector: null
                     });
