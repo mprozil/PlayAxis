@@ -53,8 +53,15 @@ module powerbi.extensibility.visual {
      * Interface for VisualChart settings.
      *
      * @interface
+     * @property {{loop:number}} transitionSettings - Object property to enable or disable loop option.
      * @property {{timeInterval:number}} transitionSettings - Object property that allows setting the time between transitions.
      * @property {{pickedColor:Fill}} colorSelector - Object property that allows setting the control buttons color.
+     * @property {{showAll:Fill}} colorSelector - Object property to enable or disable individual colors.
+     * @property {{playColor:Fill}} colorSelector - Object property that allows setting the color for play button.
+     * @property {{pauseColor:Fill}} colorSelector - Object property that allows setting the color for pause button.
+     * @property {{stopColor:Fill}} colorSelector - Object property that allows setting the color for stop button..
+     * @property {{previousColor:Fill}} colorSelector - Object property that allows setting the color the previous button.
+     * @property {{nextColor:Fill}} colorSelector - Object property that allows setting the color for next button.
      * @property {{show:boolean}} captionSettings - Object property that allows axis to be enabled.
      * @property {{captionColor:Fill}} captionSettings - Object property that allows setting the caption buttons.
      * @property {{fontSize:number}} captionSettings - Object property that allows setting the caption font size.
@@ -66,6 +73,12 @@ module powerbi.extensibility.visual {
         };
         colorSelector: {
             pickedColor: Fill;
+            showAll: boolean;
+            playColor: Fill;
+            pauseColor: Fill;
+            stopColor: Fill;
+            previousColor: Fill;
+            nextColor: Fill;
         };
         captionSettings: {
             show: boolean;
@@ -94,6 +107,12 @@ module powerbi.extensibility.visual {
             },
             colorSelector: {
                 pickedColor: { solid: { color: "#000000" } },
+                showAll: false,
+                playColor: { solid: { color: "#f2c811" } },
+                pauseColor: { solid: { color: "#1769b8" } },
+                stopColor: { solid: { color: "#f42550" } },
+                previousColor: { solid: { color: "#12b159" } },
+                nextColor: { solid: { color: "#a81de8" } },
             },
             captionSettings: {
                 show: true,
@@ -130,6 +149,12 @@ module powerbi.extensibility.visual {
             },
             colorSelector: {
                 pickedColor: getValue<Fill>(objects, 'colorSelector', 'pickedColor', defaultSettings.colorSelector.pickedColor),
+                showAll: getValue<boolean>(objects, 'colorSelector', 'showAll', defaultSettings.colorSelector.showAll),
+                playColor: getValue<Fill>(objects, 'colorSelector', 'playColor', defaultSettings.colorSelector.playColor),
+                pauseColor: getValue<Fill>(objects, 'colorSelector', 'pauseColor', defaultSettings.colorSelector.pauseColor),
+                stopColor: getValue<Fill>(objects, 'colorSelector', 'stopColor', defaultSettings.colorSelector.stopColor),
+                previousColor: getValue<Fill>(objects, 'colorSelector', 'previousColor', defaultSettings.colorSelector.previousColor),
+                nextColor: getValue<Fill>(objects, 'colorSelector', 'nextColor', defaultSettings.colorSelector.nextColor),
             },
             captionSettings: {
                 show: getValue<boolean>(objects, 'captionSettings', 'show', defaultSettings.captionSettings.show),
@@ -206,7 +231,6 @@ module powerbi.extensibility.visual {
                 .attr('dominant-baseline','middle')
                 .attr("y","14")
                 .attr('id','label');
-                //.attr('text-anchor', 'start');
 
             //Events on click
             this.svg.select("#play").on("click", () => {
@@ -238,10 +262,23 @@ module powerbi.extensibility.visual {
             this.visualSettings = viewModel.settings;
             this.visualDataPoints = viewModel.dataPoints;        
 
-            //Change colors
-            let pickedColor = viewModel.settings.colorSelector.pickedColor.solid.color;
-            let captionColor = viewModel.settings.captionSettings.captionColor.solid.color;
-            this.svg.selectAll(".controls").attr("fill", viewModel.settings.colorSelector.pickedColor.solid.color);
+            //Change colors         
+            if (this.visualSettings.colorSelector.showAll) {
+                let playColor = viewModel.settings.colorSelector.playColor.solid.color;
+                let pauseColor = viewModel.settings.colorSelector.pauseColor.solid.color;
+                let stopColor = viewModel.settings.colorSelector.stopColor.solid.color;
+                let previousColor = viewModel.settings.colorSelector.previousColor.solid.color;
+                let nextColor = viewModel.settings.colorSelector.nextColor.solid.color;
+                this.svg.selectAll("#play").attr("fill", viewModel.settings.colorSelector.playColor.solid.color);
+                this.svg.selectAll("#pause").attr("fill", viewModel.settings.colorSelector.pauseColor.solid.color);
+                this.svg.selectAll("#stop").attr("fill", viewModel.settings.colorSelector.stopColor.solid.color);
+                this.svg.selectAll("#previous").attr("fill", viewModel.settings.colorSelector.previousColor.solid.color);
+                this.svg.selectAll("#next").attr("fill", viewModel.settings.colorSelector.nextColor.solid.color);
+            } else {
+                let pickedColor = viewModel.settings.colorSelector.pickedColor.solid.color;
+                this.svg.selectAll(".controls").attr("fill", viewModel.settings.colorSelector.pickedColor.solid.color);
+            }
+            let captionColor = viewModel.settings.captionSettings.captionColor.solid.color;      
             this.svg.select("#label").attr("fill", captionColor);
 
             //Change caption font size
@@ -380,17 +417,53 @@ module powerbi.extensibility.visual {
                     });
                 break;
                 case 'colorSelector':
-                    objectEnumeration.push({
-                        objectName: objectName,
-                        properties: {
-                            pickedColor: {
-                                solid: {
-                                    color: this.visualSettings.colorSelector.pickedColor.solid.color
+                    if (this.visualSettings.colorSelector.showAll) {
+                        objectEnumeration.push({
+                            objectName: objectName,
+                            properties: {                                
+                                showAll: this.visualSettings.colorSelector.showAll,
+                                playColor: {
+                                    solid: {
+                                        color: this.visualSettings.colorSelector.playColor.solid.color
+                                    }
+                                },
+                                pauseColor: {
+                                   solid: {
+                                       color: this.visualSettings.colorSelector.pauseColor.solid.color
+                                   }
+                                },
+                                stopColor: {
+                                   solid: {
+                                       color: this.visualSettings.colorSelector.stopColor.solid.color
+                                   }
+                                },
+                                previousColor: {
+                                   solid: {
+                                       color: this.visualSettings.colorSelector.previousColor.solid.color
+                                   }
+                                },
+                                nextColor: {
+                                    solid: {
+                                       color: this.visualSettings.colorSelector.nextColor.solid.color
+                                   }
                                 }
-                            }
-                        },
-                        selector: null
-                    });
+                            },
+                            selector: null
+                        });
+                    }  else {
+                        objectEnumeration.push({
+                        objectName: objectName,
+                            properties: {
+                                showAll: this.visualSettings.colorSelector.showAll,
+                                pickedColor: {
+                                    solid: {
+                                        color: this.visualSettings.colorSelector.pickedColor.solid.color
+                                    }
+                                }
+                            },
+                            selector: null
+                        });
+                    }          
                 break;
                 case 'captionSettings':
                     objectEnumeration.push({

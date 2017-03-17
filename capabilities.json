@@ -46,7 +46,63 @@
             "displayName": "Colors",
             "properties": {
                 "pickedColor": {
-                    "displayName": "Color",
+                    "displayName": "Default Color",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "showAll": {
+                    "displayName": "Show all",
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "playColor": {
+                    "displayName": "Play",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "pauseColor": {
+                    "displayName": "Pause",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "stopColor": {
+                    "displayName": "Stop",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "previousColor": {
+                    "displayName": "Previous",
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "nextColor": {
+                    "displayName": "Next",
                     "type": {
                         "fill": {
                             "solid": {
