@@ -53,10 +53,11 @@ module powerbi.extensibility.visual {
      * Interface for VisualChart settings.
      *
      * @interface
-     * @property {{loop:number}} transitionSettings - Object property to enable or disable loop option.
+     * @property {{autoStart:boolean}} transitionSettings - Object property to enable or disable auto start option.
+     * @property {{loop:boolean}} transitionSettings - Object property to enable or disable loop option.
      * @property {{timeInterval:number}} transitionSettings - Object property that allows setting the time between transitions.
      * @property {{pickedColor:Fill}} colorSelector - Object property that allows setting the control buttons color.
-     * @property {{showAll:Fill}} colorSelector - Object property to enable or disable individual colors.
+     * @property {{showAll:boolean}} colorSelector - Object property to enable or disable individual colors.
      * @property {{playColor:Fill}} colorSelector - Object property that allows setting the color for play button.
      * @property {{pauseColor:Fill}} colorSelector - Object property that allows setting the color for pause button.
      * @property {{stopColor:Fill}} colorSelector - Object property that allows setting the color for stop button..
@@ -68,6 +69,7 @@ module powerbi.extensibility.visual {
      */
     interface VisualSettings {        
         transitionSettings: {
+            autoStart: boolean;
             loop: boolean;
             timeInterval: number;
         };
@@ -102,6 +104,7 @@ module powerbi.extensibility.visual {
 
         let defaultSettings: VisualSettings = {
             transitionSettings: {
+                autoStart: false,
                 loop: false,
                 timeInterval: 1000,
             },
@@ -144,6 +147,7 @@ module powerbi.extensibility.visual {
 
         let visualSettings: VisualSettings = {
             transitionSettings: {
+                autoStart: getValue<boolean>(objects, 'transitionSettings', 'autoStart', defaultSettings.transitionSettings.autoStart),
                 loop: getValue<boolean>(objects, 'transitionSettings', 'loop', defaultSettings.transitionSettings.loop),
                 timeInterval: getValue<number>(objects, 'transitionSettings', 'timeInterval', defaultSettings.transitionSettings.timeInterval),
             },
@@ -261,6 +265,11 @@ module powerbi.extensibility.visual {
             let viewModel = this.viewModel = visualTransform(options, this.host);
             this.visualSettings = viewModel.settings;
             this.visualDataPoints = viewModel.dataPoints;        
+
+            //Start playing without click 
+            if (this.visualSettings.transitionSettings.autoStart) { 
+                this.playAnimation();
+            }
 
             //Change colors         
             if (this.visualSettings.colorSelector.showAll) {
@@ -402,6 +411,7 @@ module powerbi.extensibility.visual {
                     objectEnumeration.push({
                         objectName: objectName,
                         properties: {
+                            autoStart: this.visualSettings.transitionSettings.autoStart,
                             loop: this.visualSettings.transitionSettings.loop,
                             timeInterval: this.visualSettings.transitionSettings.timeInterval
                         },

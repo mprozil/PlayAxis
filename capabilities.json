@@ -28,6 +28,12 @@
         "transitionSettings": {
             "displayName": "Animation Settings",
             "properties": {
+                "autoStart": {
+                    "displayName": "Auto Start",
+                    "type": { 
+                        "bool": true 
+                     }
+                },
                 "loop": {
                     "displayName": "Loop",
                     "type": { 
