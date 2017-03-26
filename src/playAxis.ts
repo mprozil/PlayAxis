@@ -125,18 +125,6 @@ module powerbi.extensibility.visual {
             }
         };
 
-        let emptyViewModel: ViewModel = {
-            dataPoints: [],
-            settings: <VisualSettings>{}
-        };
-
-        if (!dataViews
-            || !dataViews[0]
-            || !dataViews[0].categorical
-            || !dataViews[0].categorical.categories
-            || !dataViews[0].categorical.categories[0].source)
-            return emptyViewModel;
-
         let categorical = dataViews[0].categorical;
         let category = categorical.categories[0];
 
@@ -182,6 +170,28 @@ module powerbi.extensibility.visual {
             settings: visualSettings,
         };
     }
+
+    /**
+     * Function that checks if data is ready to be used by the visual.
+     *
+     * @function
+     * @param {VisualUpdateOptions} options - Contains references to the size of the container
+     *                                        and the dataView which contains all the data
+     *                                        the visual had queried.
+     */
+    function isDataReady(options: VisualUpdateOptions) {
+        if(!options
+        || !options.dataViews
+        || !options.dataViews[0]
+        || !options.dataViews[0].categorical
+        || !options.dataViews[0].categorical.categories
+        || !options.dataViews[0].categorical.categories[0].source)
+        {
+            return false;
+        }
+
+        return true;                         
+    }    
 
     enum Status {Play, Pause, Stop}
 
@@ -256,11 +266,11 @@ module powerbi.extensibility.visual {
          }
          
         public update(options: VisualUpdateOptions) {
-            if (!options ||
-                !options.dataViews ||
-                !options.dataViews[0]) {
+
+            if (isDataReady(options) == false) {
                 return;
             }
+
             this.stopAnimation();
             let viewModel = this.viewModel = visualTransform(options, this.host);
             this.visualSettings = viewModel.settings;
