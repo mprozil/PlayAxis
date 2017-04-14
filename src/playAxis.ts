@@ -206,6 +206,7 @@ module powerbi.extensibility.visual {
         private status: Status;
         private lastSelected: number;
         private viewModel: ViewModel;
+        private fieldName: string;
         private timers: any;
 
         constructor(options: VisualConstructorOptions) {
@@ -242,8 +243,7 @@ module powerbi.extensibility.visual {
             this.captionSVG = this.svg.append('svg');
             let captionBox = this.captionSVG.append('g');
             captionBox.append('text')
-                .attr('dominant-baseline','middle')
-                .attr("y","14")
+                .attr('dy','0.25em')
                 .attr('id','label');
 
             //Events on click
@@ -305,30 +305,37 @@ module powerbi.extensibility.visual {
             this.svg.select("#label").attr("font-size", fontSize);
 
             let myViewBox = options.viewport;
+
+            this.fieldName = options.dataViews[0].categorical.categories[0].source.displayName;
             
             //Change title            
-            if (this.visualSettings.captionSettings.show) {
-                let title = options.dataViews[0].categorical.categories[0].source.displayName;           
-                this.svg.select("#label").text(title);
-                let textWidth = parseInt(this.svg.select("#label").text(title).style("width"));
-                let viewBoxWidth = 155 + textWidth;
+            if (this.visualSettings.captionSettings.show) {   
+                this.updateCaption(this.fieldName);        
+
+                let node: any = <SVGElement>this.svg.select("#label").node();
+                let TextWidth = node.getBBox();
+
+                let viewBoxWidth = 155 + TextWidth.width;
                 this.controlsSVG
                 .attr("viewBox","0 0 " + viewBoxWidth + " 24")
-                .attr('preserveAspectRatio','xMinYMin');
-                
+                .attr('preserveAspectRatio','xMinYMid');
+          
                 if (this.visualSettings.captionSettings.align == "right") {
                     this.captionSVG.select("text").attr('text-anchor', 'end').attr("x","100%");
-                    this.captionSVG.attr("viewBox","0 0 145 24").attr('preserveAspectRatio','xMaxYMin');
+                    this.captionSVG.attr("viewBox","0 -14 " + viewBoxWidth + " 24").attr('preserveAspectRatio','xMaxYMid');
+                } else if (this.visualSettings.captionSettings.align == "center") {
+                    this.captionSVG.select("text").attr('text-anchor', 'middle').attr("x","50%");
+                    this.captionSVG.attr("viewBox","-75 -14 " + viewBoxWidth  + " 24").attr('preserveAspectRatio','xMidYMid');
                 } else {
-                    this.captionSVG.select("text").attr('text-anchor', 'start').attr("x","4%");
-                    this.captionSVG.attr("viewBox","-140 0 " + viewBoxWidth + " 24").attr('preserveAspectRatio','xMinYMin');
+                    this.captionSVG.select("text").attr('text-anchor', 'start').attr("x","0%");
+                    this.captionSVG.attr("viewBox","-150 -14 " + viewBoxWidth  + " 24").attr('preserveAspectRatio','xMinYMid');
                 }
                 
             } else {
                 this.svg.select("#label").text("");
                 this.controlsSVG
                 .attr("viewBox","0 0 145 24")
-                .attr('preserveAspectRatio','xMinYMin'); 
+                .attr('preserveAspectRatio','xMinYMid'); 
             }
         }
 
@@ -350,7 +357,7 @@ module powerbi.extensibility.visual {
                 this.timers.push(timer);
             }
 
-            //replay or stop after one cicle
+            //replay or stop after one cycle
             let stopAnimationTimer = setTimeout(() => {
                 if(this.visualSettings.transitionSettings.loop) {
                     this.status = Status.Stop;
@@ -372,7 +379,7 @@ module powerbi.extensibility.visual {
             for (let i of this.timers) {
                 clearTimeout(i);
             }
-            this.updateCaption("");
+            this.updateCaption(this.fieldName);
             this.lastSelected = 0;
             this.selectionManager.clear();
             this.status = Status.Stop;
@@ -394,6 +401,12 @@ module powerbi.extensibility.visual {
 
             //Check if selection is within limits
             if ((this.lastSelected + step) < 0 || (this.lastSelected + step) > (this.viewModel.dataPoints.length-1)) return;
+
+            let previousButtonOpacity = (this.lastSelected + step) == 0 ? 0.3 : 1;
+            let nextButtonOpacity = (this.lastSelected + step) == (this.viewModel.dataPoints.length-1) ? 0.3 : 1;
+
+            this.svg.selectAll("#previous").attr("opacity", previousButtonOpacity);
+            this.svg.selectAll("#next").attr("opacity", nextButtonOpacity);
 
             this.lastSelected = this.lastSelected + step;
             this.selectionManager.select(this.viewModel.dataPoints[this.lastSelected].selectionId);

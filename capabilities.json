@@ -155,6 +155,10 @@
                                 "value": "right"
                             },
                             {
+                                "displayName": "Center",
+                                "value": "center"
+                            },
+                            {
                                 "displayName": "Left",
                                 "value": "left"
                             }
