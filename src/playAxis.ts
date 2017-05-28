@@ -304,18 +304,16 @@ module powerbi.extensibility.visual {
             let fontSize = viewModel.settings.captionSettings.fontSize;
             this.svg.select("#label").attr("font-size", fontSize);
 
-            let myViewBox = options.viewport;
-
             this.fieldName = options.dataViews[0].categorical.categories[0].source.displayName;
-            
+
             //Change title            
             if (this.visualSettings.captionSettings.show) {   
                 this.updateCaption(this.fieldName);        
 
                 let node: any = <SVGElement>this.svg.select("#label").node();
-                let TextWidth = node.getBBox();
-
-                let viewBoxWidth = 155 + TextWidth.width;
+                let TextBBox = node.getBBox();
+            
+                let viewBoxWidth = 155 + TextBBox.width;
                 this.controlsSVG
                 .attr("viewBox","0 0 " + viewBoxWidth + " 24")
                 .attr('preserveAspectRatio','xMinYMid');

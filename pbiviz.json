@@ -2,7 +2,7 @@
   "visual": {
     "name": "playAxis",
     "displayName": "Play Axis",
-    "guid": "PBI_CV_8CBD39D2_8133_44C9_AE4A_D2A6F37F3719",
+    "guid": "PBI_CV_16948668_E17D_454B_8664_2F2C470EA8C2",
     "visualClassName": "Visual",
     "version": "1.1.0",
     "description": "Play axis that works like a dynamic slicer, animating other visuals. It has controls like play, pause, stop, previous and next, allowing a report and its visuals to play without user interaction. This visual accepts any parameter to be played and has some settings like colours, font size and transition options, to be customized by the user. This component was developed at Analytics & Data Science Department of São João Hospital (Porto, Portugal).",
