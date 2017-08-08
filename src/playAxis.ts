@@ -229,6 +229,13 @@ module powerbi.extensibility.visual {
                  .attr("width","100%")
                  .attr("height","100%");
 
+            //Append caption text           
+            this.captionSVG = this.svg.append('svg');
+            let captionBox = this.captionSVG.append('g');
+            captionBox.append('text')
+                .attr('dy','0.22em')
+                .attr('id','label');
+
             this.controlsSVG = this.svg.append('svg');
             for (let i = 0; i < buttonNames.length; ++i) {
                 let container = this.controlsSVG.append('g')
@@ -239,12 +246,6 @@ module powerbi.extensibility.visual {
                 .attr("d", buttonPath[i]);
              }
             
-            //Append caption text           
-            this.captionSVG = this.svg.append('svg');
-            let captionBox = this.captionSVG.append('g');
-            captionBox.append('text')
-                .attr('dy','0.25em')
-                .attr('id','label');
 
             //Events on click
             this.svg.select("#play").on("click", () => {
@@ -506,8 +507,16 @@ module powerbi.extensibility.visual {
                                     color: this.visualSettings.captionSettings.captionColor.solid.color
                                 }
                             },
-                            fontSize: this.visualSettings.captionSettings.fontSize,
                             align: this.visualSettings.captionSettings.align,
+                            fontSize: this.visualSettings.captionSettings.fontSize
+                        },
+                        validValues: {
+                            fontSize: {
+                                numberRange: {
+                                    min: 8,
+                                    max: 22
+                                }
+                            }
                         },
                         selector: null
                     });

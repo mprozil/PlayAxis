@@ -6,6 +6,9 @@
             "kind": "Grouping"
         }
     ],
+    "drilldown": {
+        "roles":["category"]
+    },
     "dataViewMappings": [
         {
             "conditions": [
@@ -140,10 +143,8 @@
                 },
                 "fontSize": {
                    "displayName": "Text size",
-                   "type": {
-                        "formatting": {
-                            "fontSize": true
-                        }
+                    "type": {
+                        "integer": true 
                     }
                 },
                 "align": {
