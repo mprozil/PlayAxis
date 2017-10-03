@@ -440,7 +440,7 @@ module powerbi.extensibility.visual {
                         validValues: {
                             timeInterval: {
                                 numberRange: {
-                                    min: 500,
+                                    min: 1,
                                     max: 60000
                                 }
                             }
