@@ -212,7 +212,7 @@ module powerbi.extensibility.visual {
         constructor(options: VisualConstructorOptions) {
             this.host = options.host;
             this.selectionManager = options.host.createSelectionManager();
-            this.status = Status.Stop;
+            this.status = Status.Pause;
             this.timers = [];
             this.lastSelected = 0;            
            
@@ -272,7 +272,8 @@ module powerbi.extensibility.visual {
                 return;
             }
 
-            this.stopAnimation();
+            this.pauseAnimation();
+
             let viewModel = this.viewModel = visualTransform(options, this.host);
             this.visualSettings = viewModel.settings;
             this.visualDataPoints = viewModel.dataPoints;        
