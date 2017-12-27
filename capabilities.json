@@ -9,6 +9,9 @@
     "drilldown": {
         "roles":["category"]
     },
+    "sorting": {
+        "default": {   }
+    },
     "dataViewMappings": [
         {
             "conditions": [
