@@ -25,6 +25,9 @@
  */
 
 module powerbi.extensibility.visual {
+     // powerbi.visuals
+     import ISelectionId = powerbi.visuals.ISelectionId;
+
      /**
      * Interface for viewmodel.
      *
@@ -213,8 +216,7 @@ module powerbi.extensibility.visual {
             this.host = options.host;
             this.selectionManager = options.host.createSelectionManager();
             this.status = Status.Pause;
-            this.timers = [];
-            this.lastSelected = 0;            
+            this.timers = [];            
            
             let buttonNames = ["play", "pause", "stop","previous","next"];
             let buttonPath = [
@@ -264,6 +266,7 @@ module powerbi.extensibility.visual {
                 this.step(1);
             });  
 
+            this.resetAnimation();
          }
          
         public update(options: VisualUpdateOptions) {
@@ -306,8 +309,12 @@ module powerbi.extensibility.visual {
             let fontSize = viewModel.settings.captionSettings.fontSize;
             this.svg.select("#label").attr("font-size", fontSize);
 
-            this.fieldName = options.dataViews[0].categorical.categories[0].source.displayName;
-
+            //Check if field name has changed and update accordingly
+            if (this.fieldName != options.dataViews[0].categorical.categories[0].source.displayName) {
+                this.fieldName = options.dataViews[0].categorical.categories[0].source.displayName;
+                this.resetAnimation();
+            }
+           
             //Change title            
             if (this.visualSettings.captionSettings.show) {   
                 this.updateCaption(this.fieldName);        
@@ -337,6 +344,26 @@ module powerbi.extensibility.visual {
                 .attr("viewBox","0 0 145 24")
                 .attr('preserveAspectRatio','xMinYMid'); 
             }
+
+            //Update selection if bookmarked was clicked
+            let ids = this.selectionManager.getSelectionIds() as ISelectionId[];
+            if(ids.length == 1) { //Number of selected ids should be 1
+                this.visualDataPoints.forEach((dataPoint, index) => {
+                    if(ids[0].includes(dataPoint.selectionId)) {
+                        this.lastSelected = index;  
+                        this.pauseAnimation();
+                        this.step(0);
+                        return;
+                    }
+                });
+            }
+        }
+
+        public resetAnimation() {
+            this.lastSelected = -1;  
+            //Setup initial state of buttons
+            this.svg.selectAll("#previous, #pause").attr("opacity", "0.3"); 
+            this.svg.selectAll("#play, #stop, #next").attr("opacity", "1"); 
         }
 
         public playAnimation() {              
@@ -346,7 +373,7 @@ module powerbi.extensibility.visual {
             this.svg.selectAll("#stop, #pause").attr("opacity", "1");
 
             let timeInterval = this.viewModel.settings.transitionSettings.timeInterval;
-            let startingIndex = this.status == Status.Stop ? 0 : this.lastSelected + 1;
+            let startingIndex = this.lastSelected + 1;
     
             for (let i = startingIndex; i < this.viewModel.dataPoints.length; ++i) {                           
                 let timer = setTimeout(() => {
@@ -361,7 +388,7 @@ module powerbi.extensibility.visual {
             let stopAnimationTimer = setTimeout(() => {
                 if(this.visualSettings.transitionSettings.loop) {
                     this.status = Status.Stop;
-                    this.lastSelected = 0;
+                    this.lastSelected = -1;
                     this.playAnimation();
                 } else {
                     this.stopAnimation();
@@ -380,13 +407,13 @@ module powerbi.extensibility.visual {
                 clearTimeout(i);
             }
             this.updateCaption(this.fieldName);
-            this.lastSelected = 0;
+            this.lastSelected = -1;
             this.selectionManager.clear();
             this.status = Status.Stop;
         }
 
         public pauseAnimation() {
-            if (this.status == Status.Pause || this.status == Status.Stop) return;                                       
+            if (this.status == Status.Pause || this.lastSelected == -1) return;                                       
 
             this.svg.selectAll("#pause").attr("opacity", "0.3");
             this.svg.selectAll("#play, #stop, #next, #previous").attr("opacity", "1"); 
