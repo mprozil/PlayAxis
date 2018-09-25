@@ -317,7 +317,10 @@ module powerbi.extensibility.visual {
            
             //Change title            
             if (this.visualSettings.captionSettings.show) {   
-                this.updateCaption(this.fieldName);        
+                
+                if (this.status != Status.Play) {
+                    this.updateCaption(this.fieldName);
+                }                        
 
                 let node: any = <SVGElement>this.svg.select("#label").node();
                 let TextBBox = node.getBBox();
@@ -347,7 +350,7 @@ module powerbi.extensibility.visual {
 
             //Update selection if bookmarked was clicked
             let ids = this.selectionManager.getSelectionIds() as ISelectionId[];
-            if(ids.length == 1) { //Number of selected ids should be 1
+            if(ids.length == 1 && (this.status != Status.Play)) { //Number of selected ids should be 1 and status different than play
                 this.visualDataPoints.forEach((dataPoint, index) => {
                     if(ids[0].includes(dataPoint.selectionId)) {
                         this.lastSelected = index;  
