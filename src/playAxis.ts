@@ -312,7 +312,7 @@ module powerbi.extensibility.visual {
             //Check if field name has changed and update accordingly
             if (this.fieldName != options.dataViews[0].categorical.categories[0].source.displayName) {
                 this.fieldName = options.dataViews[0].categorical.categories[0].source.displayName;
-                this.resetAnimation();
+                this.stopAnimation();
             }
            
             //Change title            
