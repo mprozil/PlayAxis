@@ -266,7 +266,7 @@ module powerbi.extensibility.visual {
                 this.step(1);
             });  
 
-            this.resetAnimation();
+            this.resetAnimation(false);
          }
          
         public update(options: VisualUpdateOptions) {
@@ -312,7 +312,7 @@ module powerbi.extensibility.visual {
             //Check if field name has changed and update accordingly
             if (this.fieldName != options.dataViews[0].categorical.categories[0].source.displayName) {
                 this.fieldName = options.dataViews[0].categorical.categories[0].source.displayName;
-                this.stopAnimation();
+                this.resetAnimation(this.visualSettings.transitionSettings.autoStart);
             }
            
             //Change title            
@@ -362,11 +362,17 @@ module powerbi.extensibility.visual {
             }
         }
 
-        public resetAnimation() {
-            this.lastSelected = -1;  
-            //Setup initial state of buttons
-            this.svg.selectAll("#previous, #pause").attr("opacity", "0.3"); 
-            this.svg.selectAll("#play, #stop, #next").attr("opacity", "1"); 
+        public resetAnimation(autoStart : boolean) {
+            this.lastSelected = -1;
+
+            if (autoStart) {
+                this.svg.selectAll("#play, #next, #previous").attr("opacity", "0.3");
+                this.svg.selectAll("#stop, #pause").attr("opacity", "1");
+            } else {
+                //Setup initial state of buttons
+                this.svg.selectAll("#previous, #pause").attr("opacity", "0.3"); 
+                this.svg.selectAll("#play, #stop, #next").attr("opacity", "1"); 
+            }
         }
 
         public playAnimation() {              
