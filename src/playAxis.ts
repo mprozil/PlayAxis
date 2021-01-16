@@ -109,7 +109,7 @@ module powerbi.extensibility.visual {
             transitionSettings: {
                 autoStart: false,
                 loop: false,
-                timeInterval: 1000,
+                timeInterval: 5000,
             },
             colorSelector: {
                 pickedColor: { solid: { color: "#000000" } },
@@ -389,7 +389,7 @@ module powerbi.extensibility.visual {
                     this.selectionManager.select(this.viewModel.dataPoints[i].selectionId);
                     this.lastSelected = i;
                     this.updateCaption(this.viewModel.dataPoints[i].category); 
-                }, (i - this.lastSelected) * timeInterval); 
+                }, (i - this.lastSelected -1) * timeInterval); 
                 this.timers.push(timer);
             }
 
@@ -478,7 +478,7 @@ module powerbi.extensibility.visual {
                             timeInterval: {
                                 numberRange: {
                                     min: 1,
-                                    max: 60000
+                                    max: 600000
                                 }
                             }
                         },

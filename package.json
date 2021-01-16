@@ -6,7 +6,7 @@
   },
   "devDependencies": {
     "d3": "^3.5.17",
-    "typings": "^1.3.2",
-    "powerbi-visuals-tools": "^1.11.0"
+    "powerbi-visuals-tools": "file:../PowerBI-visuals-tools-67509d5b72fe75cf1a1982b2c90e5ba70b051c26",
+    "typings": "^1.3.2"
   }
 }
