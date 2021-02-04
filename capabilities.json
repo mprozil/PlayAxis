@@ -51,6 +51,12 @@
                     "type": {
                         "integer": true
                     }
+                },
+                "cumulative": {
+                    "displayName": "Cumulative Animation",
+                    "type": {
+                        "bool": false
+                    }
                 }
             }
         },
