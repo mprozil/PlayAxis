@@ -54,8 +54,9 @@
                 },
                 "cumulative": {
                     "displayName": "Cumulative Animation",
+                    "description": "Render the animation as cumulative instead of discrete.",
                     "type": {
-                        "bool": false
+                        "bool": true
                     }
                 }
             }
