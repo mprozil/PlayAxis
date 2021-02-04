@@ -46,19 +46,19 @@
                         "bool": true 
                      }
                 },
-                "timeInterval": {
-                    "displayName": "Time(ms)",
-                    "type": {
-                        "integer": true
-                    }
-                },
                 "cumulative": {
                     "displayName": "Cumulative Animation",
                     "description": "Render the animation as cumulative instead of discrete.",
                     "type": {
                         "bool": true
                     }
-                }
+                },
+                "timeInterval": {
+                    "displayName": "Time(ms)",
+                    "type": {
+                        "integer": true
+                    }
+                }                
             }
         },
         "colorSelector": {

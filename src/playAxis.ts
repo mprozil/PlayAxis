@@ -111,8 +111,8 @@ module powerbi.extensibility.visual {
             transitionSettings: {
                 autoStart: false,
                 loop: false,
-                timeInterval: 5000,
-                cumulative: true,
+                timeInterval: 2000,
+                cumulative: false,
             },
             colorSelector: {
                 pickedColor: { solid: { color: "#000000" } },
@@ -283,7 +283,7 @@ module powerbi.extensibility.visual {
 
             let viewModel = this.viewModel = visualTransform(options, this.host);
             this.visualSettings = viewModel.settings;
-            this.visualDataPoints = viewModel.dataPoints;        
+            this.visualDataPoints = viewModel.dataPoints;
 
             //Start playing without click 
             if (this.visualSettings.transitionSettings.autoStart) { 
@@ -380,8 +380,6 @@ module powerbi.extensibility.visual {
         }
 
         public playAnimation() {              
-            //let ids = this.selectionManager.getSelectionIds() as ISelectionId[];
-            //ids : ISelectionId[];
             let activeIds: ISelectionId[] = [];
 
             if (this.status == Status.Play) return;
@@ -487,8 +485,8 @@ module powerbi.extensibility.visual {
                         properties: {
                             autoStart: this.visualSettings.transitionSettings.autoStart,
                             loop: this.visualSettings.transitionSettings.loop,
-                            timeInterval: this.visualSettings.transitionSettings.timeInterval,
-                            cumulative: this.visualSettings.transitionSettings.cumulative
+                            cumulative: this.visualSettings.transitionSettings.cumulative,
+                            timeInterval: this.visualSettings.transitionSettings.timeInterval
                         },
                         validValues: {
                             timeInterval: {
