@@ -69,12 +69,14 @@ module powerbi.extensibility.visual {
      * @property {{show:boolean}} captionSettings - Object property that allows axis to be enabled.
      * @property {{captionColor:Fill}} captionSettings - Object property that allows setting the caption buttons.
      * @property {{fontSize:number}} captionSettings - Object property that allows setting the caption font size.
+     * @property {{cumulative:boolean}} transitionSettings - Object property that allows cumulative animation.
      */
     interface VisualSettings {        
         transitionSettings: {
             autoStart: boolean;
             loop: boolean;
             timeInterval: number;
+            cumulative: boolean;
         };
         colorSelector: {
             pickedColor: Fill;
@@ -110,6 +112,7 @@ module powerbi.extensibility.visual {
                 autoStart: false,
                 loop: false,
                 timeInterval: 5000,
+                cumulative: true,
             },
             colorSelector: {
                 pickedColor: { solid: { color: "#000000" } },
@@ -141,6 +144,7 @@ module powerbi.extensibility.visual {
                 autoStart: getValue<boolean>(objects, 'transitionSettings', 'autoStart', defaultSettings.transitionSettings.autoStart),
                 loop: getValue<boolean>(objects, 'transitionSettings', 'loop', defaultSettings.transitionSettings.loop),
                 timeInterval: getValue<number>(objects, 'transitionSettings', 'timeInterval', defaultSettings.transitionSettings.timeInterval),
+                cumulative: getValue<boolean>(objects, 'transitionSettings', 'cumulative', defaultSettings.transitionSettings.cumulative),
             },
             colorSelector: {
                 pickedColor: getValue<Fill>(objects, 'colorSelector', 'pickedColor', defaultSettings.colorSelector.pickedColor),
@@ -376,6 +380,10 @@ module powerbi.extensibility.visual {
         }
 
         public playAnimation() {              
+            //let ids = this.selectionManager.getSelectionIds() as ISelectionId[];
+            //ids : ISelectionId[];
+            let activeIds: ISelectionId[] = [];
+
             if (this.status == Status.Play) return;
    
             this.svg.selectAll("#play, #next, #previous").attr("opacity", "0.3");
@@ -383,12 +391,19 @@ module powerbi.extensibility.visual {
 
             let timeInterval = this.viewModel.settings.transitionSettings.timeInterval;
             let startingIndex = this.lastSelected + 1;
+            let cumulative = this.viewModel.settings.transitionSettings.cumulative;
     
             for (let i = startingIndex; i < this.viewModel.dataPoints.length; ++i) {                           
                 let timer = setTimeout(() => {
-                    this.selectionManager.select(this.viewModel.dataPoints[i].selectionId);
+                    if(!cumulative){
+                        this.selectionManager.select(this.viewModel.dataPoints[i].selectionId);
+                    }
+                    else{
+                        activeIds.push(this.viewModel.dataPoints[i].selectionId);
+                        this.selectionManager.select(activeIds,false);
+                    }
                     this.lastSelected = i;
-                    this.updateCaption(this.viewModel.dataPoints[i].category); 
+                    this.updateCaption(this.viewModel.dataPoints[i].category);
                 }, (i - this.lastSelected -1) * timeInterval); 
                 this.timers.push(timer);
             }
@@ -472,7 +487,8 @@ module powerbi.extensibility.visual {
                         properties: {
                             autoStart: this.visualSettings.transitionSettings.autoStart,
                             loop: this.visualSettings.transitionSettings.loop,
-                            timeInterval: this.visualSettings.transitionSettings.timeInterval
+                            timeInterval: this.visualSettings.transitionSettings.timeInterval,
+                            cumulative: this.visualSettings.transitionSettings.cumulative
                         },
                         validValues: {
                             timeInterval: {
