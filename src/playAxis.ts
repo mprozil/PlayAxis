@@ -212,6 +212,7 @@ module powerbi.extensibility.visual {
         private visualSettings: VisualSettings;
         private status: Status;
         private lastSelected: number;
+        private activeIds: ISelectionId[];
         private viewModel: ViewModel;
         private fieldName: string;
         private timers: any;
@@ -368,6 +369,7 @@ module powerbi.extensibility.visual {
 
         public resetAnimation(autoStart : boolean) {
             this.lastSelected = -1;
+            this.activeIds = [];
 
             if (autoStart) {
                 this.svg.selectAll("#play, #next, #previous").attr("opacity", "0.3");
@@ -380,8 +382,6 @@ module powerbi.extensibility.visual {
         }
 
         public playAnimation() {              
-            let activeIds: ISelectionId[] = [];
-
             if (this.status == Status.Play) return;
    
             this.svg.selectAll("#play, #next, #previous").attr("opacity", "0.3");
@@ -397,8 +397,8 @@ module powerbi.extensibility.visual {
                         this.selectionManager.select(this.viewModel.dataPoints[i].selectionId);
                     }
                     else{
-                        activeIds.push(this.viewModel.dataPoints[i].selectionId);
-                        this.selectionManager.select(activeIds,false);
+                        this.activeIds.push(this.viewModel.dataPoints[i].selectionId);
+                        this.selectionManager.select(this.activeIds,false);
                     }
                     this.lastSelected = i;
                     this.updateCaption(this.viewModel.dataPoints[i].category);
@@ -411,6 +411,7 @@ module powerbi.extensibility.visual {
                 if(this.visualSettings.transitionSettings.loop) {
                     this.status = Status.Stop;
                     this.lastSelected = -1;
+                    this.activeIds = [];
                     this.playAnimation();
                 } else {
                     this.stopAnimation();
@@ -430,6 +431,7 @@ module powerbi.extensibility.visual {
             }
             this.updateCaption(this.fieldName);
             this.lastSelected = -1;
+            this.activeIds = [];
             this.selectionManager.clear();
             this.status = Status.Stop;
         }
@@ -453,12 +455,29 @@ module powerbi.extensibility.visual {
 
             let previousButtonOpacity = (this.lastSelected + step) == 0 ? 0.3 : 1;
             let nextButtonOpacity = (this.lastSelected + step) == (this.viewModel.dataPoints.length-1) ? 0.3 : 1;
+            let cumulative = this.viewModel.settings.transitionSettings.cumulative;
 
             this.svg.selectAll("#previous").attr("opacity", previousButtonOpacity);
             this.svg.selectAll("#next").attr("opacity", nextButtonOpacity);
 
             this.lastSelected = this.lastSelected + step;
-            this.selectionManager.select(this.viewModel.dataPoints[this.lastSelected].selectionId);
+            if(!cumulative){
+                this.selectionManager.select(this.viewModel.dataPoints[this.lastSelected].selectionId);
+            }
+            else{
+                if(step > 0){
+                    this.activeIds.push(this.viewModel.dataPoints[this.lastSelected].selectionId);
+                }
+                else{
+                    //In cumulative mode remove the current value
+                    const index = this.activeIds.indexOf(this.viewModel.dataPoints[this.lastSelected + 1].selectionId, 0);
+                    if (index > -1) {
+                        this.activeIds.splice(index, 1);
+                    }
+                }
+                this.selectionManager.select(this.activeIds,false);
+            }
+
             this.updateCaption(this.viewModel.dataPoints[this.lastSelected].category);
             this.status = Status.Pause;
         }
